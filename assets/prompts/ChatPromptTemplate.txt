@@ -1,0 +1,10 @@
+{text} 
+
+-----------
+
+Using the above text, answer in short the following question: 
+
+> {question}
+
+-----------
+if the question cannot be answered using the text, simply summarize the text. Include all factual information, numbers, stats etc if available.

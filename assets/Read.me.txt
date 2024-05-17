@@ -1,0 +1,5 @@
+
+The method filecontent (from lib/utils.py) is folder agnostic. So you can
+move the files to whatever folder you want without changing the code
+
+In case there are multiple files with the same name, an error is raised

@@ -1,0 +1,26 @@
+[
+    {
+        "category": "",
+        "title": "<Clear prompt>",
+        "prompt": ""
+
+    },
+    {
+        "category": "Finance",
+        "title": "Making a Technology Investment Decision",
+        "prompt": "Check, if the technology TECHNOLOGYNAME is worth investing in. Create a list of pros and cons and make a decision."
+    },
+
+    {
+        "category": "Development",
+        "title": "Scaffold of Swift database application",
+        "prompt": "Create the scaffold for a database oriented application for iOS that loads data from a table named TABLENAME and displays the rows in a List. "
+    },
+
+    {
+        "category": "Development",
+        "title": "Write Swift Unit Tests",
+        "prompt": "Create the unit tests for all viewmodel and model methods."
+    }
+
+]
