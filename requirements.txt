@@ -10,3 +10,4 @@ langchainhub
 beautifulsoup4
 requests
 python-dotenv
+pronouncing
