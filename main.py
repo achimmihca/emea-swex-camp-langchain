@@ -36,6 +36,7 @@ if not agent_already_existed:
         .with_system_template(SYSTEM_PROMPT_PATH)
         .with_chat_llm(ChatOpenAI)
         .with_model("gpt-4-turbo")
+        .with_temperature(0)
         .with_tools([WebSearchTool(max_results=2), even_odd, fahrenheit_to_cel])
         .build()
 

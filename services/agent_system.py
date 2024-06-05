@@ -66,6 +66,7 @@ class AgentSystem:
 class AgentSystemBuilder:
     """Builder class to create an Agent System."""
     def __init__(self, namespace: str, agent: Type[AgentSystem], clear: bool):
+        self.temperature = 0
         self.namespace = namespace
         self.summary_prompt = None
         self.prompt = None
@@ -133,12 +134,16 @@ class AgentSystemBuilder:
         self.tools = tools
         return self
 
+    def with_temperature(self, temperature):
+        self.temperature = temperature
+        return self
+
     def build(self):
         """Build the agent system."""
         if "history" not in st.session_state[self.namespace]:
             st.session_state[self.namespace].history = []
 
-        llm = self.chat_llm(model=self.model, temperature=0)
+        llm = self.chat_llm(model=self.model, temperature=self.temperature)
 
         agent = create_openai_tools_agent(llm, self.tools, self.prompt)
 
