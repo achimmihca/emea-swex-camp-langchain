@@ -150,8 +150,6 @@ def main():
             | ChatOpenAI(temperature=0)
             | StrOutputParser()
             | (lambda x: x.split("\n"))
-
-
     )
 
         # Retrieve

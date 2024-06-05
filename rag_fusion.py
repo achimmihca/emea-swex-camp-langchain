@@ -122,7 +122,7 @@ def reciprocal_rank_fusion(results: list[list], k=60):
     # Sort the documents based on their fused scores in descending order to get the final reranked results
     reranked_results = [
         (loads(doc), score)
-        for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
+        for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[:4]
     ]
 
     # Return the reranked results as a list of tuples, each containing the document and its fused score
@@ -135,7 +135,7 @@ def main():
     """
     Main function to run the Streamlit app.
     """
-    st.title("Board Game Q&A Wizard")
+    st.title("Board Game Q&A Wizard - Rank Fusion")
     st.write("This app allows you to ask questions about the content from the documents loaded from the given PDFs.")
 
     # File uploader for PDF files

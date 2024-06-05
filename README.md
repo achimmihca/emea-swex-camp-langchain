@@ -33,7 +33,7 @@ streamlit run main.py
 ## Run the RAG app
 To run the app run
 ```
-streamlit run rag.py
-streamlit run rag_multi.py
-streamlit run rag_fusion.py
+streamlit run rag.py --server.port 8505   
+streamlit run rag_multi.py --server.port 8506
+streamlit run rag_fusion.py --server.port 8507
 ```
