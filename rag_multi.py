@@ -56,6 +56,9 @@ def create_rag_chain(retriever):
     Returns:
         rag_chain: A chain object that can process questions and generate answers.
     """
+    # Load the prompt template for the RAG chain
+    # prompt = hub.pull("rlm/rag-prompt")
+
     # Define the input variables
     input_variables = ['context', 'question']
 
@@ -87,6 +90,7 @@ def create_rag_chain(retriever):
 
     return rag_chain
 
+
 def get_unique_union(documents: list[list]):
     """ Unique union of retrieved docs """
     # Flatten list of lists, and convert each Document to string
@@ -96,46 +100,18 @@ def get_unique_union(documents: list[list]):
     # Return
     return [loads(doc) for doc in unique_docs]
 
-def reciprocal_rank_fusion(results: list[list], k=60):
-    """ Reciprocal_rank_fusion that takes multiple lists of ranked documents 
-        and an optional parameter k used in the RRF formula """
-    
-    # Initialize a dictionary to hold fused scores for each unique document
-    fused_scores = {}
-
-    # Iterate through each list of ranked documents
-    for docs in results:
-        # Iterate through each document in the list, with its rank (position in the list)
-        for rank, doc in enumerate(docs):
-            # Convert the document to a string format to use as a key (assumes documents can be serialized to JSON)
-            doc_str = dumps(doc)
-            # If the document is not yet in the fused_scores dictionary, add it with an initial score of 0
-            if doc_str not in fused_scores:
-                fused_scores[doc_str] = 0
-            # Retrieve the current score of the document, if any
-            previous_score = fused_scores[doc_str]
-            # Update the score of the document using the RRF formula: 1 / (rank + k)
-            fused_scores[doc_str] += 1 / (rank + k)
-
-    # Sort the documents based on their fused scores in descending order to get the final reranked results
-    reranked_results = [
-        (loads(doc), score)
-        for doc, score in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
-    ]
-
-    # Return the reranked results as a list of tuples, each containing the document and its fused score
-    return reranked_results
 
 # Streamlit app definition
 def main():
     """
     Main function to run the Streamlit app.
     """
-    st.title("Board Game Q&A Wizard")
-    st.write("This app allows you to ask questions about the content from the documents loaded from the given PDFs.")
+    st.title("Board Game Q&A Wizard - Multi Query")
+    st.write("This app allows you to ask questions about the content from the document loaded from the given PDF.")
 
     # File uploader for PDF files
-    uploaded_files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
+    uploaded_files = st.file_uploader(
+        "Upload PDF files", type="pdf", accept_multiple_files=True)
 
     if uploaded_files:
         # Save the uploaded files to disk
@@ -161,28 +137,49 @@ def main():
             | (lambda x: x.split("\n"))
         )
 
+        # Multi Query: Different Perspectives
+        template = """You are an AI language model assistant. Your task is to generate three 
+    different versions of the given user question to retrieve relevant documents from a vector 
+    database. By generating multiple perspectives on the user question, your goal is to help
+    the user overcome some of the limitations of the distance-based similarity search. 
+    Provide these alternative questions separated by newlines. Original question: {question}"""
+
+        prompt_perspectives = ChatPromptTemplate.from_template(template)
+        generate_queries = (
+            prompt_perspectives
+            | ChatOpenAI(temperature=0)
+            | StrOutputParser()
+            | (lambda x: x.split("\n"))
+
+
+    )
+
         # Retrieve
         # Input box for user to enter their question
         question = st.text_input("Enter your question:")
-        retrieval_chain_rag_fusion = generate_queries | retriever.map() | reciprocal_rank_fusion
-        docs = retrieval_chain_rag_fusion.invoke({"question": question})
+        retrieval_chain = generate_queries | retriever.map() | get_unique_union
+        docs = retrieval_chain.invoke({"question": question})
         len(docs)
 
         # Create the RAG chain for question answering
+        # RAG
         template = """Answer the following question based on this context:
 
         {context}
 
         Question: {question}
         """
+
         prompt = ChatPromptTemplate.from_template(template)
+
         llm = ChatOpenAI(temperature=0)
+
         final_rag_chain = (
-            {"context": retrieval_chain_rag_fusion,
-             "question": itemgetter("question")}
-            | prompt
-            | llm
-            | StrOutputParser()
+        {"context": retrieval_chain,
+         "question": itemgetter("question")}
+        | prompt
+        | llm
+        | StrOutputParser()
         )
 
         if question:
@@ -193,6 +190,7 @@ def main():
             # Display the answer
             st.write("**Answer:**")
             st.write(result)
+
 
 # Run the Streamlit app
 if __name__ == "__main__":

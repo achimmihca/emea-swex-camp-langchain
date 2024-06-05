@@ -17,8 +17,23 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+For Windows:
+```
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 ## Run the app
 To run the app run
 ```
 streamlit run main.py
+```
+
+## Run the RAG app
+To run the app run
+```
+streamlit run rag.py
+streamlit run rag_multi.py
+streamlit run rag_fusion.py
 ```
